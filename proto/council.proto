@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package council;
+
+// The Council of 5: one service, five seats.
+// A client dispatches a task; the server fans it out to whichever
+// seats are requested (or all five) and returns each seat's reply.
+// A seat with no credentials does not fake an answer — it reports
+// not_configured and names exactly what would seat it.
+service Council {
+  rpc Dispatch(TaskRequest) returns (TaskResponse);
+}
+
+message TaskRequest {
+  string task_id = 1;
+  string prompt = 2;
+  // Seat names to consult. Empty means all five seats.
+  // Known seats: kimi, chatgpt, claude, hermes, minato
+  repeated string seats = 3;
+}
+
+message MemberReply {
+  string seat = 1;
+  // ok | not_configured | error
+  string status = 2;
+  string output = 3;
+  string error = 4;
+}
+
+message TaskResponse {
+  string task_id = 1;
+  repeated MemberReply replies = 2;
+}
